@@ -43,7 +43,7 @@
   .dd-cap { font: 500 .62rem "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .dd-chev { width: 14px; height: 14px; color: var(--accent); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
   .dd.open .dd-chev { transform: rotate(180deg); }
-  .dd-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 250px; max-width: calc(100vw - 32px); margin: 0; padding: .35rem; list-style: none; z-index: 20;
+  .dd-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 270px; max-width: calc(100vw - 32px); max-height: min(72vh, 600px); overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: .35rem; list-style: none; z-index: 20;
              background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(16px) saturate(1.4);
              border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 18px 40px -12px rgba(0,0,0,.45);
              opacity: 0; transform: translateY(-6px) scale(.98); transform-origin: top right; pointer-events: none;
@@ -60,8 +60,10 @@
   .swatch { display: flex; flex: none; }
   .swatch i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg); margin-left: -5px; box-shadow: 0 0 0 1px var(--border); }
   .swatch i:first-child { margin-left: 0; }
-  .glyph { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--border);
-           font: 600 .8rem "JetBrains Mono", monospace; color: var(--accent); }
+  .glyph { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--border); color: var(--accent); }
+  .glyph svg { width: 20px; height: 20px; }
+  .dd-group { padding: .7rem .65rem .3rem; font: 500 .62rem "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .dd-group:not(:first-child) { border-top: 1px solid var(--border); margin-top: .3rem; }
   @media (prefers-reduced-motion: reduce) { .dd-menu, .dd-chev { transition: none; } }
 
   main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
@@ -113,12 +115,7 @@
       <option value="minimal" data-swatch="#fbfaf7 #2b59c3 #c33b2b" data-sub="ink on paper">Minimal</option>
       <option value="bold" data-swatch="#1b0838 #ffb703 #fb5607" data-sub="amber on violet">Bold</option>
     </select>
-    <select id="kind" hidden data-label="Fractal">
-      <option value="julia" data-eq="z<sub>n+1</sub> = z<sub>n</sub>² + c,&nbsp; c = 0.7885·e<sup>iθ</sup>" data-glyph="J" data-sub="z ↦ z² + c">Julia</option>
-      <option value="mandelbrot" data-eq="z<sub>n+1</sub> = z<sub>n</sub>² + c,&nbsp; z<sub>0</sub> = 0" data-glyph="M" data-sub="z₀ = 0, c ∈ ℂ">Mandelbrot</option>
-      <option value="ship" data-eq="z<sub>n+1</sub> = (|x<sub>n</sub>| + i|y<sub>n</sub>|)² + c" data-glyph="B" data-sub="z ↦ (|x|+i|y|)² + c">Burning Ship</option>
-      <option value="none" data-eq="" data-glyph="∅" data-sub="plain background">Off</option>
-    </select>
+    <select id="kind" hidden data-label="Fractal"></select>
   </div>
 </nav>
 
@@ -199,6 +196,7 @@
 
 <footer class="mono">© <span id="yr"></span> Ali Lahrime · rendered with z ↦ z² + c</footer>
 
+<script src="fractals.js"></script>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
@@ -206,8 +204,16 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
                 set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 const themeSel = document.getElementById('theme'), kindSel = document.getElementById('kind');
+for (const f of FRACTALS) {
+  const parent = f.group ? kindSel.querySelector(`optgroup[label="${f.group}"]`) ||
+                           kindSel.appendChild(Object.assign(document.createElement('optgroup'), { label: f.group })) : kindSel;
+  const o = new Option(f.name, f.id);
+  Object.assign(o.dataset, { sub: f.sub, eq: f.eq, icon: f.icon });
+  parent.append(o);
+}
 themeSel.value = store.get('theme') || 'dark';
 kindSel.value = store.get('kind') || 'julia';
+if (!kindSel.value) kindSel.value = 'julia';  // stored id no longer exists
 document.documentElement.dataset.theme = themeSel.value;
 themeSel.onchange = () => { document.documentElement.dataset.theme = themeSel.value; store.set('theme', themeSel.value); readColors(); };
 const eq = document.getElementById('eq');
@@ -225,14 +231,16 @@ for (const sel of document.querySelectorAll('.controls select')) {
     <ul class="dd-menu" role="listbox" id="${id}" aria-label="${sel.dataset.label}" tabindex="-1"></ul>`;
   const btn = dd.querySelector('button'), menu = dd.querySelector('ul'), val = dd.querySelector('.dd-val');
   for (const o of sel.options) {
+    if (o.parentNode.label && o === o.parentNode.firstElementChild)
+      menu.append(Object.assign(document.createElement('li'), { className: 'dd-group', role: 'presentation', textContent: o.parentNode.label }));
     const li = document.createElement('li'), d = o.dataset;
     li.className = 'dd-opt'; li.role = 'option'; li.dataset.value = o.value; li.tabIndex = -1;
     const icon = d.swatch ? `<span class="swatch">${d.swatch.split(' ').map(c => `<i style="background:${c}"></i>`).join('')}</span>`
-                          : `<span class="glyph">${d.glyph}</span>`;
+                          : `<span class="glyph" aria-hidden="true">${d.icon}</span>`;
     li.innerHTML = `${icon}<span><b>${o.text}</b><small>${d.sub}</small></span><span class="check">✓</span>`;
     menu.append(li);
   }
-  const opts = [...menu.children];
+  const opts = [...menu.querySelectorAll('.dd-opt')];
   const sync = () => { val.textContent = sel.selectedOptions[0].text;
                        opts.forEach(li => li.setAttribute('aria-selected', li.dataset.value === sel.value)); };
   const focusOpt = li => { opts.forEach(o => o.classList.toggle('active', o === li)); li.focus(); };
@@ -256,87 +264,16 @@ for (const sel of document.querySelectorAll('.controls select')) {
   sel.after(dd); sync();
 }
 
-// --- fractal background (WebGL: full-res, per-pixel on the GPU) ---
-const canvas = document.getElementById('fractal');
-const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+// --- fractal background (engine and registry live in fractals.js) ---
 let colors;
 function hex(c) { c = c.trim().replace('#', ''); return [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) / 255); }
 function readColors() {
   const s = getComputedStyle(document.documentElement);
   colors = ['--bg', '--accent', '--accent2'].map(v => hex(s.getPropertyValue(v)));
 }
-
-const FRAG = `
-precision highp float;
-uniform vec2 res, ctr; uniform float t, scl; uniform int kind;
-uniform vec3 bg, ca, cb;
-const int MAX_IT = 400;
-void main() {
-  vec2 p = (gl_FragCoord.xy - res * .5) / min(res.x, res.y);
-  vec2 z, c;
-  if (kind == 0) { z = p * 3.; c = .7885 * vec2(cos(t), sin(t)); }     // Julia, c orbits |c| = .7885
-  else if (kind == 1) { z = vec2(0); c = ctr + p * scl; }              // Mandelbrot
-  else { z = vec2(0); c = ctr + p * scl; c.y = -c.y; }                 // Burning Ship (drawn upright)
-  float n = -1., px = (kind == 0 ? 3. : scl) / min(res.x, res.y);   // size of one pixel in the plane
-  vec2 dz = vec2(kind == 0 ? 1. : 0., 0);                           // derivative, for distance estimate
-  for (int i = 0; i < MAX_IT; i++) {
-    if (kind == 2) { dz *= sign(z); z = abs(z); }                   // ponytail: approximate DE for the ship
-    dz = 2. * vec2(z.x * dz.x - z.y * dz.y, z.x * dz.y + z.y * dz.x) + vec2(kind == 0 ? 0. : 1., 0);
-    z = vec2(z.x * z.x - z.y * z.y, 2. * z.x * z.y) + c;
-    if (dot(z, z) > 256.) { n = float(i); break; }
-  }
-  if (n < 0.) { gl_FragColor = vec4(bg, 1); return; }               // inside the set: empty
-  float v = n + 1. - log2(log2(dot(z, z)) * .5);                    // smooth escape time
-  float d = .5 * length(z) * log(length(z)) / length(dz) / px;      // distance to set, in pixels
-  vec3 col = mix(ca, cb, .5 + .5 * sin(log2(v) * 3. + t * 2.));
-  gl_FragColor = vec4(mix(bg, col, exp(-sqrt(d) * .35)), 1);        // glow hugs the edge at any zoom
-}`;
-
-let prog, U = {};
-if (gl) {
-  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
-  prog = gl.createProgram();
-  gl.attachShader(prog, sh(gl.VERTEX_SHADER, 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0, 1); }'));
-  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
-  gl.linkProgram(prog); gl.useProgram(prog);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); // one big triangle
-  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  for (const k of ['res', 't', 'kind', 'bg', 'ca', 'cb', 'ctr', 'scl']) U[k] = gl.getUniformLocation(prog, k);
-} else canvas.remove(); // no WebGL: plain background
-
-function resize() {
-  if (!gl) return;
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  canvas.width = Math.max(1, innerWidth * dpr | 0); canvas.height = Math.max(1, innerHeight * dpr | 0);
-  gl.viewport(0, 0, canvas.width, canvas.height);
-}
-
-// ponytail: depth capped ~e^-8 (scale 1e-3) by float32 precision; deeper needs double-float emulation
-const ZOOM = {
-  mandelbrot: { home: [-0.6, 0], target: [-0.743643887, 0.131825904], depth: 8 },  // Seahorse Valley
-  ship:       { home: [-1.0, 0.5], target: [-1.7621, 0.0281], depth: 3.5 },         // the little "ship"
-};
-
-function draw(t) {
-  if (!gl) return;
-  const kind = kindSel.value;
-  canvas.style.display = kind === 'none' ? 'none' : '';
-  if (kind === 'none') return;
-  gl.uniform2f(U.res, canvas.width, canvas.height);
-  gl.uniform1f(U.t, t);
-  gl.uniform1i(U.kind, { julia: 0, mandelbrot: 1, ship: 2 }[kind]);
-  if (ZOOM[kind]) {
-    // ease in and back out (no jump on loop). Target stays put on screen because the center
-    // slides toward it in proportion to the scale.
-    const { home, target, depth } = ZOOM[kind];
-    const s = 3 * Math.exp(-depth * (0.5 - 0.5 * Math.cos(t * 0.6)));
-    gl.uniform2f(U.ctr, target[0] + (home[0] - target[0]) * s / 3, target[1] + (home[1] - target[1]) * s / 3);
-    gl.uniform1f(U.scl, s);
-  }
-  gl.uniform3fv(U.bg, colors[0]); gl.uniform3fv(U.ca, colors[1]); gl.uniform3fv(U.cb, colors[2]);
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
-}
+const canvas = document.getElementById('fractal'), render = Fractals(canvas);
+if (!render) canvas.remove(); // no WebGL: plain background
+const draw = t => render && render(kindSel.value, t, colors);
 
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let t = 0.6, last = performance.now();
@@ -344,8 +281,8 @@ function loop(now) {
   t += Math.min(now - last, 50) * 0.00025; last = now; // time-based, so speed is the same at 60 or 120 Hz
   draw(t); requestAnimationFrame(loop);
 }
-readColors(); resize();
-addEventListener('resize', () => { resize(); if (still) draw(t); });
+readColors();
+addEventListener('resize', () => { if (still) draw(t); });
 kindSel.addEventListener('change', () => { if (still) draw(t); });
 themeSel.addEventListener('change', () => { if (still) draw(t); });
 if (still) draw(t); else requestAnimationFrame(loop);
