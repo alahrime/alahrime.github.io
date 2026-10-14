@@ -114,10 +114,10 @@
       <option value="bold" data-swatch="#1b0838 #ffb703 #fb5607" data-sub="amber on violet">Bold</option>
     </select>
     <select id="kind" hidden data-label="Fractal">
-      <option value="julia" data-glyph="J" data-sub="z ↦ z² + c">Julia</option>
-      <option value="mandelbrot" data-glyph="M" data-sub="z₀ = 0, c ∈ ℂ">Mandelbrot</option>
-      <option value="ship" data-glyph="B" data-sub="z ↦ (|x|+i|y|)² + c">Burning Ship</option>
-      <option value="none" data-glyph="∅" data-sub="plain background">Off</option>
+      <option value="julia" data-eq="z<sub>n+1</sub> = z<sub>n</sub>² + c,&nbsp; c = 0.7885·e<sup>iθ</sup>" data-glyph="J" data-sub="z ↦ z² + c">Julia</option>
+      <option value="mandelbrot" data-eq="z<sub>n+1</sub> = z<sub>n</sub>² + c,&nbsp; z<sub>0</sub> = 0" data-glyph="M" data-sub="z₀ = 0, c ∈ ℂ">Mandelbrot</option>
+      <option value="ship" data-eq="z<sub>n+1</sub> = (|x<sub>n</sub>| + i|y<sub>n</sub>|)² + c" data-glyph="B" data-sub="z ↦ (|x|+i|y|)² + c">Burning Ship</option>
+      <option value="none" data-eq="" data-glyph="∅" data-sub="plain background">Off</option>
     </select>
   </div>
 </nav>
@@ -210,7 +210,10 @@ themeSel.value = store.get('theme') || 'dark';
 kindSel.value = store.get('kind') || 'julia';
 document.documentElement.dataset.theme = themeSel.value;
 themeSel.onchange = () => { document.documentElement.dataset.theme = themeSel.value; store.set('theme', themeSel.value); readColors(); };
-kindSel.onchange = () => { store.set('kind', kindSel.value); };
+const eq = document.getElementById('eq');
+const showEq = () => { eq.innerHTML = kindSel.selectedOptions[0].dataset.eq; };
+kindSel.onchange = () => { store.set('kind', kindSel.value); showEq(); };
+showEq();
 
 // --- custom dropdowns: mirror each hidden <select>, which stays the source of truth ---
 const CHEV = '<svg class="dd-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
