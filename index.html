@@ -31,8 +31,38 @@
         padding: .75rem 1rem; background: var(--panel); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
   nav .links a { color: var(--fg); text-decoration: none; margin-right: 1rem; font-weight: 600; }
   nav .links a:hover { color: var(--accent); }
-  .controls { display: flex; gap: .5rem; font-size: .85rem; }
-  .controls select { background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; padding: .3rem .4rem; font: inherit; }
+  .controls { display: flex; gap: .5rem; }
+
+  /* custom dropdown (built from the hidden <select>s in .controls) */
+  .dd { position: relative; }
+  .dd-btn { display: flex; align-items: center; gap: .6rem; padding: .35rem .5rem .35rem .75rem; border-radius: 10px; cursor: pointer;
+            background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--fg); border: 1px solid var(--border);
+            font: 600 .85rem Inter, system-ui, sans-serif; backdrop-filter: blur(10px); transition: border-color .2s, box-shadow .2s; }
+  .dd-btn:hover, .dd.open .dd-btn { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .dd-btn:focus-visible, .dd-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dd-cap { font: 500 .62rem "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .dd-chev { width: 14px; height: 14px; color: var(--accent); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+  .dd.open .dd-chev { transform: rotate(180deg); }
+  .dd-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 250px; max-width: calc(100vw - 32px); margin: 0; padding: .35rem; list-style: none; z-index: 20;
+             background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(16px) saturate(1.4);
+             border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 18px 40px -12px rgba(0,0,0,.45);
+             opacity: 0; transform: translateY(-6px) scale(.98); transform-origin: top right; pointer-events: none;
+             transition: opacity .18s, transform .18s cubic-bezier(.2,.8,.2,1); }
+  .dd:first-of-type .dd-menu { left: 0; right: auto; transform-origin: top left; }
+  .dd.open .dd-menu { opacity: 1; transform: none; pointer-events: auto; }
+  .dd-opt { display: flex; align-items: center; gap: .75rem; padding: .55rem .65rem; border-radius: 9px; cursor: pointer; outline: none; }
+  .dd-opt:hover, .dd-opt.active { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .dd-opt b { font-weight: 600; font-size: .9rem; display: block; }
+  .dd-opt small { white-space: nowrap; font: .72rem "JetBrains Mono", monospace; color: var(--muted); }
+  .dd-opt .check { margin-left: auto; color: var(--accent); opacity: 0; }
+  .dd-opt[aria-selected="true"] .check { opacity: 1; }
+  .dd-opt[aria-selected="true"] b { color: var(--accent); }
+  .swatch { display: flex; flex: none; }
+  .swatch i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg); margin-left: -5px; box-shadow: 0 0 0 1px var(--border); }
+  .swatch i:first-child { margin-left: 0; }
+  .glyph { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--border);
+           font: 600 .8rem "JetBrains Mono", monospace; color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { .dd-menu, .dd-chev { transition: none; } }
 
   main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
   section { scroll-margin-top: 80px; margin: 4rem 0; padding: 2rem; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; backdrop-filter: blur(4px); }
@@ -78,17 +108,17 @@
     <a href="#about">About</a><a href="#projects">Projects</a><a href="#resume">Resume</a>
   </div>
   <div class="controls">
-    <label>Theme
-      <select id="theme">
-        <option value="dark">Dark</option><option value="minimal">Minimal</option><option value="bold">Bold</option>
-      </select>
-    </label>
-    <label>Fractal
-      <select id="kind">
-        <option value="julia">Julia</option><option value="mandelbrot">Mandelbrot</option>
-        <option value="ship">Burning Ship</option><option value="none">Off</option>
-      </select>
-    </label>
+    <select id="theme" hidden data-label="Theme">
+      <option value="dark" data-swatch="#0b0d12 #5eead4 #818cf8" data-sub="teal on ink">Dark</option>
+      <option value="minimal" data-swatch="#fbfaf7 #2b59c3 #c33b2b" data-sub="ink on paper">Minimal</option>
+      <option value="bold" data-swatch="#1b0838 #ffb703 #fb5607" data-sub="amber on violet">Bold</option>
+    </select>
+    <select id="kind" hidden data-label="Fractal">
+      <option value="julia" data-glyph="J" data-sub="z ↦ z² + c">Julia</option>
+      <option value="mandelbrot" data-glyph="M" data-sub="z₀ = 0, c ∈ ℂ">Mandelbrot</option>
+      <option value="ship" data-glyph="B" data-sub="z ↦ (|x|+i|y|)² + c">Burning Ship</option>
+      <option value="none" data-glyph="∅" data-sub="plain background">Off</option>
+    </select>
   </div>
 </nav>
 
@@ -181,6 +211,47 @@ kindSel.value = store.get('kind') || 'julia';
 document.documentElement.dataset.theme = themeSel.value;
 themeSel.onchange = () => { document.documentElement.dataset.theme = themeSel.value; store.set('theme', themeSel.value); readColors(); };
 kindSel.onchange = () => { store.set('kind', kindSel.value); };
+
+// --- custom dropdowns: mirror each hidden <select>, which stays the source of truth ---
+const CHEV = '<svg class="dd-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
+for (const sel of document.querySelectorAll('.controls select')) {
+  const dd = document.createElement('div'), id = sel.id + '-menu';
+  dd.className = 'dd';
+  dd.innerHTML = `<button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}">
+      <span class="dd-cap">${sel.dataset.label}</span><span class="dd-val"></span>${CHEV}</button>
+    <ul class="dd-menu" role="listbox" id="${id}" aria-label="${sel.dataset.label}" tabindex="-1"></ul>`;
+  const btn = dd.querySelector('button'), menu = dd.querySelector('ul'), val = dd.querySelector('.dd-val');
+  for (const o of sel.options) {
+    const li = document.createElement('li'), d = o.dataset;
+    li.className = 'dd-opt'; li.role = 'option'; li.dataset.value = o.value; li.tabIndex = -1;
+    const icon = d.swatch ? `<span class="swatch">${d.swatch.split(' ').map(c => `<i style="background:${c}"></i>`).join('')}</span>`
+                          : `<span class="glyph">${d.glyph}</span>`;
+    li.innerHTML = `${icon}<span><b>${o.text}</b><small>${d.sub}</small></span><span class="check">✓</span>`;
+    menu.append(li);
+  }
+  const opts = [...menu.children];
+  const sync = () => { val.textContent = sel.selectedOptions[0].text;
+                       opts.forEach(li => li.setAttribute('aria-selected', li.dataset.value === sel.value)); };
+  const focusOpt = li => { opts.forEach(o => o.classList.toggle('active', o === li)); li.focus(); };
+  const open = () => { dd.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+                       focusOpt(opts.find(li => li.dataset.value === sel.value)); };
+  const close = (refocus) => { dd.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); if (refocus) btn.focus(); };
+  const pick = li => { sel.value = li.dataset.value; sel.dispatchEvent(new Event('change')); sync(); close(true); };
+  btn.onclick = () => dd.classList.contains('open') ? close() : open();
+  btn.onkeydown = e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(); } };
+  menu.onclick = e => { const li = e.target.closest('.dd-opt'); if (li) pick(li); };
+  menu.onmousemove = e => { const li = e.target.closest('.dd-opt'); if (li && li !== document.activeElement) focusOpt(li); };
+  menu.onkeydown = e => {
+    const i = opts.indexOf(document.activeElement);
+    const go = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: opts.length - 1 }[e.key];
+    if (go !== undefined) { e.preventDefault(); focusOpt(opts[(go + opts.length) % opts.length]); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(opts[i]); }
+    else if (e.key === 'Escape') close(true);
+    else if (e.key === 'Tab') close();
+  };
+  document.addEventListener('pointerdown', e => { if (!dd.contains(e.target)) close(); });
+  sel.after(dd); sync();
+}
 
 // --- fractal background (WebGL: full-res, per-pixel on the GPU) ---
 const canvas = document.getElementById('fractal');
