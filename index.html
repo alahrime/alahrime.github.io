@@ -142,7 +142,8 @@
 
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
   .card { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); display: flex; flex-direction: column; }
-  .card h3 { margin: 0 0 .25rem; }
+  .card h3 { margin: 0 0 .25rem; display: flex; align-items: center; gap: .5rem; }
+  .card h3 svg { height: 1.1em; width: auto; flex: none; }
   .card p { color: var(--muted); flex: 1; }
   .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin: .5rem 0 1rem; }
   .tags span { font: .75rem "JetBrains Mono", monospace; padding: .15rem .5rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); }
@@ -210,14 +211,14 @@
     <div class="grid">
       <article class="card">
         <span class="status">◐ in progress</span>
-        <h3>Paragon IV</h3>
+        <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12a10 10 0 0 1 20 0z" fill="#e3350d"/><path d="M2 12a10 10 0 0 0 20 0z" fill="#f4f4f4"/><circle cx="12" cy="12" r="10" fill="none" stroke="#1a1a1a" stroke-width="1.6"/><path d="M2 12h20" stroke="#1a1a1a" stroke-width="1.6"/><circle cx="12" cy="12" r="3.2" fill="#f4f4f4" stroke="#1a1a1a" stroke-width="1.6"/></svg>Paragon IV</h3>
         <p>Competitive Pokémon IV ranking app with matchmaking, PvP, tournaments, friends and chat.</p>
         <div class="tags"><span>React</span><span>Supabase</span><span>Realtime</span></div>
         <div><a class="btn" href="https://paragon2.alahrime.workers.dev/" target="_blank" rel="noopener">Live demo</a><a class="btn" href="https://github.com/alahrime/pokemon-fullstack-app" target="_blank" rel="noopener">Code</a></div>
       </article>
       <article class="card">
         <span class="status">◐ in progress</span>
-        <h3>Auto Repair Scanner</h3>
+        <h3><svg viewBox="0 0 32 14" aria-hidden="true"><path d="M1.5 10.5C1.5 9 2.5 8.2 4 7.8L10 6.6C12 4.6 15 3.6 19 3.6c3 0 5.5 1 7.5 2.8l3 .8c1.1.3 1.5 1.2 1.5 2.2v1.1z" fill="#d40000"/><path d="M11.6 6.6c1.7-1.4 4-2 7-2h.9l.5 2z M21 4.8c1.8.2 3.2.8 4.3 1.8h-3.8z" fill="#1a1a1a" opacity=".75"/><circle cx="8" cy="10.6" r="2.6" fill="#1a1a1a"/><circle cx="24.5" cy="10.6" r="2.6" fill="#1a1a1a"/><circle cx="8" cy="10.6" r="1" fill="#c8c8c8"/><circle cx="24.5" cy="10.6" r="1" fill="#c8c8c8"/></svg>Auto Repair Scanner</h3>
         <p>Overlay scanner app for auto repair shops.</p>
         <div class="tags"><span>TODO</span></div>
         <div><a class="btn" href="#">Live demo</a><a class="btn" href="#">Code</a></div>
