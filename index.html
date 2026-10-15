@@ -98,6 +98,31 @@
   .dd-group { padding: .7rem .65rem .3rem; font: 500 .62rem "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .dd-group::before { content: "▸ "; color: var(--accent); }
   .dd-group:not(:first-child) { border-top: 1px dashed var(--border); margin-top: .3rem; }
+  /* n×n tile grid (fractal menu). Fixed to the nav (its backdrop-filter makes it the containing block),
+     so it lines up with the right gutter and never runs off a phone screen. */
+  .dd-menu.grid { position: fixed; top: calc(100% + 8px); right: 16px; left: auto; width: min(600px, calc(100vw - 32px));
+                  max-height: calc(100vh - 100px); display: grid; background-color: color-mix(in srgb, var(--bg) 97%, transparent); grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px; padding: 10px; }
+  .grid .dd-opt, .grid .dd-idle { position: relative; aspect-ratio: 1; flex-direction: column; justify-content: center; gap: .4rem;
+                                  padding: .5rem; text-align: center; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+                                  background: color-mix(in srgb, var(--bg) 40%, transparent); }
+  .grid .dd-opt:hover, .grid .dd-opt.active { border-color: var(--accent); box-shadow: inset 0 0 18px -6px var(--accent);
+                                              background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .grid .dd-opt[aria-selected="true"] { border-color: var(--accent); }
+  .grid .glyph { width: 46px; height: 46px; }
+  .grid .glyph svg { width: 28px; height: 28px; }
+  .grid .dd-opt b { font-size: .8rem; line-height: 1.2; }
+  .grid .dd-opt small { display: block; font-size: .6rem; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin-top: .2rem; }
+  .grid .dd-opt > span:not(.glyph):not(.tag):not(.check) { max-width: 100%; }
+  .grid .check { position: absolute; top: .35rem; right: .45rem; margin: 0; }
+  .grid .tag { position: absolute; top: .35rem; left: .45rem; font: 500 .52rem "JetBrains Mono", monospace; letter-spacing: .1em;
+               text-transform: uppercase; color: var(--muted); }
+  .grid .dd-idle { display: flex; color: var(--muted); font: .62rem "JetBrains Mono", monospace; border-style: dashed;
+                   background: repeating-linear-gradient(45deg, transparent 0 6px, color-mix(in srgb, var(--accent) 6%, transparent) 6px 7px); }
+  @media (max-width: 520px) {
+    .grid .dd-opt small, .grid .tag { display: none; }
+    .grid .glyph { width: 34px; height: 34px; } .grid .glyph svg { width: 22px; height: 22px; }
+    .grid .dd-opt b { font-size: .66rem; }
+  }
   @media (prefers-reduced-motion: reduce) { .dd-menu, .dd-menu > li { animation: none !important; } .dd-chev { transition: none; } }
 
   main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
@@ -149,7 +174,7 @@
       <option value="minimal" data-swatch="#fbfaf7 #2b59c3 #c33b2b" data-sub="ink on paper">Minimal</option>
       <option value="bold" data-swatch="#1b0838 #ffb703 #fb5607" data-sub="amber on violet">Bold</option>
     </select>
-    <select id="kind" hidden data-label="Fractal"></select>
+    <select id="kind" hidden data-label="Fractal" data-grid></select>
   </div>
 </nav>
 
@@ -242,7 +267,7 @@ for (const f of FRACTALS) {
   const parent = f.group ? kindSel.querySelector(`optgroup[label="${f.group}"]`) ||
                            kindSel.appendChild(Object.assign(document.createElement('optgroup'), { label: f.group })) : kindSel;
   const o = new Option(f.name, f.id);
-  Object.assign(o.dataset, { sub: f.sub, eq: f.eq, icon: f.icon });
+  Object.assign(o.dataset, { sub: f.sub, eq: f.eq, icon: f.icon, tag: GROUP_TAG[f.group] || '' });
   parent.append(o);
 }
 themeSel.value = store.get('theme') || 'dark';
@@ -264,16 +289,21 @@ for (const sel of document.querySelectorAll('.controls select')) {
       <span class="dd-cap">${sel.dataset.label}</span><span class="dd-val"></span>${CHEV}</button>
     <ul class="dd-menu" role="listbox" id="${id}" aria-label="${sel.dataset.label}" tabindex="-1"></ul>`;
   const btn = dd.querySelector('button'), menu = dd.querySelector('ul'), val = dd.querySelector('.dd-val');
+  const grid = 'grid' in sel.dataset, n = Math.ceil(Math.sqrt(sel.options.length));
+  if (grid) { menu.classList.add('grid'); menu.style.setProperty('--n', n); }
   for (const o of sel.options) {
-    if (o.parentNode.label && o === o.parentNode.firstElementChild)
+    if (!grid && o.parentNode.label && o === o.parentNode.firstElementChild)
       menu.append(Object.assign(document.createElement('li'), { className: 'dd-group', role: 'presentation', textContent: o.parentNode.label }));
     const li = document.createElement('li'), d = o.dataset;
     li.className = 'dd-opt'; li.role = 'option'; li.dataset.value = o.value; li.tabIndex = -1;
     const icon = d.swatch ? `<span class="swatch">${d.swatch.split(' ').map(c => `<i style="background:${c}"></i>`).join('')}</span>`
                           : `<span class="glyph" aria-hidden="true">${d.icon}</span>`;
-    li.innerHTML = `${icon}<span><b>${o.text}</b><small>${d.sub}</small></span><span class="check">✓</span>`;
+    li.innerHTML = `${grid && d.tag ? `<span class="tag">${d.tag}</span>` : ''}${icon}<span><b>${o.text}</b><small>${d.sub}</small></span><span class="check">✓</span>`;
     menu.append(li);
   }
+  for (let i = sel.options.length; grid && i < n * n; i++)   // pad the square with an idle HUD cell
+    menu.append(Object.assign(document.createElement('li'), { className: 'dd-idle', role: 'presentation',
+      innerHTML: `<span>${sel.options.length}/${n * n}</span><span>n = ${n}</span>` }));
   [...menu.children].forEach((li, i) => li.style.setProperty('--i', i));                 // stagger order
   const opts = [...menu.querySelectorAll('.dd-opt')];
   const sync = () => { val.textContent = sel.selectedOptions[0].text;
@@ -295,8 +325,10 @@ for (const sel of document.querySelectorAll('.controls select')) {
   menu.onmousemove = e => { const li = e.target.closest('.dd-opt'); if (li && li !== document.activeElement) focusOpt(li); };
   menu.onkeydown = e => {
     const i = opts.indexOf(document.activeElement);
-    const go = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: opts.length - 1 }[e.key];
-    if (go !== undefined) { e.preventDefault(); focusOpt(opts[(go + opts.length) % opts.length]); }
+    const row = grid ? n : 1;  // in the grid, up/down move a whole row
+    const go = { ArrowDown: i + row, ArrowUp: i - row, ArrowRight: grid ? i + 1 : undefined, ArrowLeft: grid ? i - 1 : undefined,
+                 Home: 0, End: opts.length - 1 }[e.key];
+    if (go !== undefined) { e.preventDefault(); focusOpt(opts[grid ? Math.min(Math.max(go, 0), opts.length - 1) : (go + opts.length) % opts.length]); }
     else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(opts[i]); }
     else if (e.key === 'Escape') close(true);
     else if (e.key === 'Tab') close();

@@ -218,8 +218,9 @@ const ICON = {
 
 // ---------- registry (drives the dropdown, the hero formula, and the renderer) ----------
 const G1 = '3D architecture', G2 = 'Organic & ethereal', G3 = 'Flames & chaos', G4 = 'Space-filling curves';
+const GROUP_TAG = { [G1]: '3D', [G2]: 'Organic', [G3]: 'Chaos', [G4]: 'Curve' };
 const FRACTALS = [
-  { id: 'mandelbox', group: G1, name: 'Mandelbox', sub: 'box fold → sphere fold', type: 'ray', glsl: ray(MANDELBOX, 12., 4.),
+  { id: 'mandelbox', group: G1, name: 'Mandelbox', sub: 'box + sphere folds', type: 'ray', glsl: ray(MANDELBOX, 12., 4.),
     eq: 'z ↦ s·fold<sub>sphere</sub>(fold<sub>box</sub>(z)) + c,&nbsp; s = −1.75' },
   { id: 'menger', group: G1, name: 'Menger Sponge', sub: 'dim = log 20 / log 3', type: 'ray', glsl: ray(MENGER, 5.2, 2.2),
     eq: 'M = ⋂<sub>n</sub> M<sub>n</sub>,&nbsp; dim = log 20 / log 3 ≈ 2.727' },
