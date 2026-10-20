@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ali Lahrime — Resume</title>
+<!-- Source for resume.pdf. Rebuild with:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --no-pdf-header-footer --print-to-pdf=resume.pdf resume.html -->
+<style>
+  @page { size: letter; margin: .45in .55in; }
+  body { margin: 0; font: 9.5pt/1.28 Helvetica, Arial, sans-serif; color: #000; }
+  h1 { font-size: 17pt; text-align: center; margin: 0; }
+  .contact { text-align: center; margin: 1pt 0 7pt; }
+  h2 { font-size: 10.5pt; text-transform: uppercase; margin: 8pt 0 3pt; padding-bottom: 1.5pt; border-bottom: .8pt solid #000; }
+  p { margin: 0; }
+  .skills div b { font-weight: bold; }
+  .job { margin-top: 4pt; }
+  .row { display: flex; justify-content: space-between; }
+  .row b { font-weight: bold; }
+  .row i { font-style: italic; }
+  ul { margin: 1pt 0 0; padding-left: 14pt; }
+  li { margin: .8pt 0; }
+</style>
+</head>
+<body>
+<h1>Ali Lahrime</h1>
+<div class="contact">alahrime@gmail.com | alahrime.github.io</div>
+
+<h2>Summary</h2>
+<p>Frontend-focused full-stack engineer with six years of TypeScript experience, building reliable, polished React
+apps from reusable design-system components to the APIs behind them. I care about the details people feel: performance,
+accessibility and interaction quality, backed by automated tests and careful code review. I keep learning and building with new
+AI technologies, picking up the tools and skills that help me ship better work, faster.</p>
+
+<h2>Technical Skills</h2>
+<div class="skills">
+  <div><b>Languages:</b> TypeScript, JavaScript, HTML, CSS, Python, SQL</div>
+  <div><b>Frontend:</b> Tailwind CSS, React, Angular, Vite, RTK Query, Three.js</div>
+  <div><b>Backend:</b> Node.js, Express, REST API design, Supabase, PostgreSQL</div>
+  <div><b>Cloud &amp; DevOps:</b> Docker, Kubernetes, Cloudflare Workers, GitHub Actions, Jenkins, Git</div>
+  <div><b>AI Tooling:</b> Claude Code, Codex, Cursor, Ollama (local LLMs)</div>
+</div>
+
+<h2>Work Experience</h2>
+<div class="job">
+  <div class="row"><b>Japanese Auto Services</b><span></span></div>
+  <div class="row"><i>Full-Stack Software Engineer</i><span>December 2024 – Present</span></div>
+  <ul>
+    <li>Own the shop's billing platform end to end, setting priorities and the roadmap with the owner and front-desk staff</li>
+    <li>Defined how customers, vehicles, jobs and invoices are tracked, shaped around how staff actually work</li>
+    <li>Sped up billing by automating diagnostics, invoicing and pickup notifications, and building a tool that turns photos of handwritten job tickets into invoices</li>
+    <li>Automated the shop's inspection and emissions billing reports, replacing manual report preparation</li>
+  </ul>
+</div>
+<div class="job">
+  <div class="row"><b>Center for Translational Data Science (University of Chicago)</b><span>Chicago, IL</span></div>
+  <div class="row"><i>Frontend Software Engineer</i><span>October 2021 – September 2024</span></div>
+  <ul>
+    <li>Shipped features end to end on the NCI Genomic Data Commons, a cancer research portal serving 70,000+ monthly users and 3+ PB of data</li>
+    <li>Architected and built a Section 508 compliant React/TypeScript app from scratch for the VA's genomics research program</li>
+    <li>Designed a reusable data table component (search, sort, pagination, data fetching) reused across several portals</li>
+    <li>Improved web performance by migrating data fetching to RTK Query with caching, cutting redundant API requests</li>
+    <li>Led code reviews across multiple frontend repos, setting the architecture and conventions the team followed</li>
+    <li>Built unit and end-to-end test suites that caught regressions before every release</li>
+    <li>Containerized apps with Docker and deployed them to Kubernetes through Jenkins and GitHub Actions pipelines</li>
+  </ul>
+</div>
+<div class="job">
+  <div class="row"><b>Pyramid Systems, Inc.</b><span>Arlington, VA</span></div>
+  <div class="row"><i>Software Engineer I</i><span>October 2019 – September 2021</span></div>
+  <ul>
+    <li>Delivered frontend features on two federal contracts: an Angular app for the SEC and a React app for HUD</li>
+    <li>Redesigned search in both apps, used by more than 50,000 users</li>
+    <li>Resolved Section 508 accessibility issues and production defects across both apps</li>
+    <li>Integrated UI features with backend REST services and modernized legacy JavaScript</li>
+    <li>Demoed new features to product stakeholders at the end of each sprint</li>
+    <li>Earned the Key for Performance Award for my work on both projects</li>
+  </ul>
+</div>
+<div class="job">
+  <div class="row"><b>FDM Group</b><span>Reston, VA</span></div>
+  <div class="row"><i>Software Developer</i><span>June 2018 – November 2018</span></div>
+  <ul>
+    <li>Turned client wireframes into working prototypes</li>
+    <li>Automated routine email and file handling with Bash scripts</li>
+  </ul>
+</div>
+
+<h2>Education &amp; Training</h2>
+<div class="job">
+  <div class="row"><b>College of William &amp; Mary</b><span>Williamsburg, VA</span></div>
+  <div class="row"><i>B.S. in Applied Mathematics</i><span>August 2013 – December 2017</span></div>
+</div>
+<div class="job">
+  <div class="row"><b>Thinkful Engineering Immersion</b><span>Washington, D.C.</span></div>
+  <div class="row"><i>Full-Stack Apprentice</i><span>January 2019 – May 2019</span></div>
+  <ul>
+    <li>Built and deployed React, Node.js and Express apps alongside senior developers</li>
+    <li>Wrote unit and end-to-end tests for those apps</li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en" data-theme="spectrum">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ali Lahrime — Software Engineer</title>
+<meta name="description" content="Portfolio of Ali Lahrime, frontend-focused full-stack software engineer.">
+<script>
+  // before first paint: enable motion styles and restore the saved theme (no flash of the default theme)
+  document.documentElement.classList.add('js');
+  try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'spectrum'; } catch {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+  /* ---------- themes ---------- */
+  :root, [data-theme="minimal"] {
+    --bg: #fbfaf7; --fg: #141414; --muted: #5f5f5f; --accent: #2b59c3; --accent2: #c33b2b;
+    --panel: rgba(251,250,247,.82); --border: #dcdcd6; --fractal-opacity: .35;
+  }
+  [data-theme="dark"] {
+    --bg: #0b0d12; --fg: #e6e8ee; --muted: #8a91a3; --accent: #5eead4; --accent2: #818cf8;
+    --panel: rgba(11,13,18,.76); --border: #222836; --fractal-opacity: .55;
+  }
+  [data-theme="aurora"] {
+    --bg: #06121a; --fg: #e8f6f3; --muted: #87a9a6; --accent: #6ee7b7; --accent2: #c084fc;
+    --panel: rgba(6,18,26,.74); --border: #173038; --fractal-opacity: .6;
+  }
+  [data-theme="synthwave"] {
+    --bg: #13072e; --fg: #fdf2ff; --muted: #b99bd8; --accent: #ff4ecd; --accent2: #22d3ee;
+    --panel: rgba(19,7,46,.72); --border: #3b1f6b; --fractal-opacity: .7;
+  }
+  [data-theme="spectrum"] {   /* accents are rewritten live by the script */
+    --bg: #0a0a12; --fg: #ececf4; --muted: #9a9ab0; --accent: #ff6ad5; --accent2: #6ad5ff;
+    --panel: rgba(10,10,18,.76); --border: #23233a; --fractal-opacity: .65;
+  }
+  [data-theme="bold"] {
+    --bg: #1b0838; --fg: #fff6e9; --muted: #d6c2ff; --accent: #ffb703; --accent2: #fb5607;
+    --panel: rgba(27,8,56,.72); --border: #4a2a80; --fractal-opacity: .7;
+  }
+  [data-theme="noir"] {
+    --bg: #0a0a0a; --fg: #f4f4f4; --muted: #8c8c8c; --accent: #ff3b3b; --accent2: #f4f4f4;
+    --panel: rgba(10,10,10,.8); --border: #262626; --fractal-opacity: .5;
+  }
+  [data-theme="glacier"] {
+    --bg: #eef4fa; --fg: #0c1a2b; --muted: #55667b; --accent: #0a6fd6; --accent2: #00a896;
+    --panel: rgba(238,244,250,.8); --border: #cbd8e6; --fractal-opacity: .45;
+  }
+
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.65 Geist, system-ui, sans-serif; letter-spacing: -.005em;
+         -webkit-font-smoothing: antialiased; transition: background .3s, color .3s; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  #fractal { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; opacity: var(--fractal-opacity);
+             transition: opacity .35s ease-in, filter .35s ease-in, transform .35s ease-in; }
+  #fractal.fx-out { opacity: 0; filter: blur(18px) saturate(1.8); transform: scale(1.08); }
+  #fractal.fx-pre { opacity: 0; filter: blur(24px) brightness(1.8); transform: scale(.94); transition: none; }
+  #fractal.fx-in { transition-duration: 1s; transition-timing-function: cubic-bezier(.2,.8,.2,1); }
+  a { color: var(--accent); }
+  .mono { font-family: "Geist Mono", monospace; }
+  /* pointer glow that follows the cursor behind everything */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: var(--glow, 0); transition: opacity .6s;
+                 background: radial-gradient(600px circle at var(--cx, 50%) var(--cy, 50%), color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%); }
+
+  /* ---------- theme switch: the new theme spreads in a circle from the click (View Transitions API) ---------- */
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  html.vt-theme::view-transition-new(root) { animation: vt-circle .85s cubic-bezier(.7,0,.25,1) both; }
+  @keyframes vt-circle { from { clip-path: circle(0 at var(--vx) var(--vy)); } to { clip-path: circle(var(--vr) at var(--vx) var(--vy)); } }
+
+  /* ---------- nav ---------- */
+  nav { position: sticky; top: 0; z-index: 10; display: flex; gap: 1rem; align-items: center; justify-content: space-between;
+        padding: .7rem 1rem; background: var(--panel); backdrop-filter: blur(10px) saturate(1.3); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  nav::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; transform-origin: left;
+               transform: scaleX(var(--sp, 0)); background: linear-gradient(90deg, var(--accent), var(--accent2)); }   /* scroll progress */
+  .links { display: flex; align-items: center; gap: 1.1rem; }
+  .brand { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--accent); color: var(--accent); text-decoration: none;
+           font: 600 .78rem "Geist Mono", monospace; letter-spacing: -.02em; position: relative; }
+  .brand::after { content: ""; position: absolute; inset: 3px; border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  .links a:not(.brand) { position: relative; color: var(--fg); text-decoration: none; font-weight: 500; font-size: .95rem; }
+  .links a:not(.brand)::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1.5px; background: var(--accent);
+                                transform: scaleX(0); transform-origin: right; transition: transform .45s cubic-bezier(.7,0,.2,1); }
+  .links a:not(.brand):hover::after, .links a.active::after { transform: scaleX(1); transform-origin: left; }
+  .links a.active { color: var(--accent); }
+  .controls { display: flex; gap: .5rem; }
+
+  /* ---------- custom dropdown (built from the hidden <select>s in .controls): square HUD panel ---------- */
+  @property --scan { syntax: '<percentage>'; inherits: false; initial-value: 110%; }
+  .dd { position: relative; --tick: linear-gradient(var(--accent), var(--accent)); }
+  .dd-btn { display: flex; align-items: center; gap: .6rem; padding: .4rem .55rem .4rem .75rem; border-radius: 0; cursor: pointer;
+            background: color-mix(in srgb, var(--bg) 60%, transparent); color: var(--fg); border: 1px solid var(--border);
+            font: 600 .85rem Geist, system-ui, sans-serif; backdrop-filter: blur(10px); transition: border-color .2s, box-shadow .2s; }
+  .dd-btn:hover, .dd.open .dd-btn { border-color: var(--accent); box-shadow: 0 0 14px -4px var(--accent), inset 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .dd-btn:focus-visible, .dd-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dd-cap { font: 500 .62rem "Geist Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .dd-chev { width: 14px; height: 14px; color: var(--accent); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+  .dd.open .dd-chev { transform: rotate(180deg); }
+  .dd-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 280px; max-width: calc(100vw - 32px); max-height: min(72vh, 600px);
+             overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: .55rem; list-style: none; z-index: 20;
+             border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border)); border-radius: 0; backdrop-filter: blur(16px) saturate(1.4);
+             box-shadow: 0 0 28px -6px color-mix(in srgb, var(--accent) 45%, transparent), 0 24px 48px -16px rgba(0,0,0,.5);
+             background:                                               /* fixed to the box, so it stays put while the list scrolls */
+               var(--tick) left top / 14px 2px no-repeat, var(--tick) left top / 2px 14px no-repeat,
+               var(--tick) right top / 14px 2px no-repeat, var(--tick) right top / 2px 14px no-repeat,
+               var(--tick) left bottom / 14px 2px no-repeat, var(--tick) left bottom / 2px 14px no-repeat,
+               var(--tick) right bottom / 14px 2px no-repeat, var(--tick) right bottom / 2px 14px no-repeat,
+               linear-gradient(90deg, transparent, var(--accent), transparent) 0 var(--scan) / 100% 2px no-repeat,   /* sweep line */
+               repeating-linear-gradient(color-mix(in srgb, var(--accent) 5%, transparent) 0 1px, transparent 1px 4px), /* scanlines */
+               color-mix(in srgb, var(--bg) 94%, transparent);
+             visibility: hidden; pointer-events: none; }
+  .dd:first-of-type .dd-menu { left: 0; right: auto; }
+  .dd.open .dd-menu { visibility: visible; pointer-events: auto; animation: dd-in .55s cubic-bezier(.2,.8,.2,1) both; }
+  .dd.closing .dd-menu { visibility: visible; animation: dd-out .3s cubic-bezier(.6,0,.8,.4) both; }
+  .dd.open .dd-menu > li { animation: dd-item .35s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(180ms + var(--i) * 22ms); }
+  /* open: a dot ignites, stretches into a line, then the panel unrolls behind a sweeping scan line */
+  @keyframes dd-in {
+    0%   { clip-path: inset(0 50% calc(100% - 2px) 50%); opacity: 0; --scan: 0%; }
+    8%   { opacity: 1; }
+    12%  { opacity: .35; }
+    16%  { opacity: 1; }
+    32%  { clip-path: inset(0 0 calc(100% - 2px) 0); --scan: 0%; }
+    100% { clip-path: inset(-60px); opacity: 1; --scan: 110%; }
+  }
+  /* close: like a CRT switching off: squash to a line, pinch to a dot, flicker out */
+  @keyframes dd-out {
+    0%   { clip-path: inset(-60px); opacity: 1; }
+    55%  { clip-path: inset(calc(50% - 1px) 0 calc(50% - 1px) 0); opacity: 1; }
+    80%  { opacity: .4; }
+    88%  { opacity: 1; }
+    100% { clip-path: inset(calc(50% - 1px) 50% calc(50% - 1px) 50%); opacity: 0; }
+  }
+  @keyframes dd-item { from { opacity: 0; transform: translateX(-10px); filter: blur(3px); } }
+  .dd-opt { display: flex; align-items: center; gap: .75rem; padding: .55rem .65rem; border-radius: 0; cursor: pointer; outline: none;
+            transition: background .15s, box-shadow .15s; }
+  .dd-opt:hover, .dd-opt.active { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent);
+                                  box-shadow: inset 2px 0 0 var(--accent); }
+  .dd-opt b { font-weight: 600; font-size: .9rem; display: block; }
+  .dd-opt small { white-space: nowrap; font: .72rem "Geist Mono", monospace; color: var(--muted); }
+  .dd-opt .check { margin-left: auto; color: var(--accent); opacity: 0; font: .75rem "Geist Mono", monospace; }
+  .dd-opt[aria-selected="true"] .check { opacity: 1; }
+  .dd-opt[aria-selected="true"] b { color: var(--accent); }
+  .swatch { display: flex; flex: none; }
+  .swatch i { width: 14px; height: 14px; border-radius: 2px; border: 2px solid var(--bg); margin-left: -5px; box-shadow: 0 0 0 1px var(--border); }
+  .swatch i:first-child { margin-left: 0; }
+  .dd-opt[data-value="spectrum"] .swatch i:not(:first-child) { animation: hue 6s linear infinite; }
+  @keyframes hue { to { filter: hue-rotate(360deg); } }
+  .glyph { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 0; border: 1px solid var(--border); color: var(--accent);
+           background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .dd-opt.active .glyph, .dd-opt[aria-selected="true"] .glyph { border-color: var(--accent); box-shadow: 0 0 10px -3px var(--accent); }
+  .glyph svg { width: 20px; height: 20px; }
+  .dd-group { padding: .7rem .65rem .3rem; font: 500 .62rem "Geist Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .dd-group::before { content: "▸ "; color: var(--accent); }
+  .dd-group:not(:first-child) { border-top: 1px dashed var(--border); margin-top: .3rem; }
+  /* n×n tile grid. Fixed to the nav (its backdrop-filter makes it the containing block),
+     so it lines up with the right gutter and never runs off a phone screen. */
+  .dd .dd-menu.grid { position: fixed; top: calc(100% + 8px); right: 16px; left: auto; width: min(calc(var(--n) * 148px + 20px), calc(100vw - 32px));
+                  max-height: calc(100vh - 100px); display: grid; background-color: color-mix(in srgb, var(--bg) 97%, transparent); grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px; padding: 10px; }
+  .grid .dd-opt, .grid .dd-idle { position: relative; aspect-ratio: 1; flex-direction: column; justify-content: center; gap: .4rem;
+                                  padding: .5rem; text-align: center; border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+                                  background: color-mix(in srgb, var(--bg) 40%, transparent); }
+  .grid .dd-opt:hover, .grid .dd-opt.active { border-color: var(--accent); box-shadow: inset 0 0 18px -6px var(--accent);
+                                              background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .grid .dd-opt[aria-selected="true"] { border-color: var(--accent); }
+  .grid .glyph { width: 46px; height: 46px; }
+  .grid .glyph svg { width: 28px; height: 28px; }
+  .grid .swatch i { width: 24px; height: 24px; margin-left: -8px; }
+  .grid .swatch i:first-child { margin-left: 0; }
+  .grid .dd-opt b { font-size: .8rem; line-height: 1.2; }
+  .grid .dd-opt small { display: block; font-size: .6rem; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin-top: .2rem; }
+  .grid .dd-opt > span:not(.glyph):not(.tag):not(.check) { max-width: 100%; }
+  .grid .check { position: absolute; top: .35rem; right: .45rem; margin: 0; }
+  .grid .tag { position: absolute; top: .35rem; left: .45rem; font: 500 .52rem "Geist Mono", monospace; letter-spacing: .1em;
+               text-transform: uppercase; color: var(--muted); }
+  .grid .dd-idle { display: flex; color: var(--muted); font: .62rem "Geist Mono", monospace; border-style: dashed;
+                   background: repeating-linear-gradient(45deg, transparent 0 6px, color-mix(in srgb, var(--accent) 6%, transparent) 6px 7px); }
+  @media (max-width: 520px) {
+    .grid .dd-opt small, .grid .tag { display: none; }
+    .grid .glyph { width: 34px; height: 34px; } .grid .glyph svg { width: 22px; height: 22px; }
+    .grid .dd-opt b { font-size: .66rem; }
+  }
+
+  /* ---------- layout ---------- */
+  main { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+  section { --tick: linear-gradient(var(--accent), var(--accent)); scroll-margin-top: 80px; margin: 5rem 0; padding: 2.25rem; border: 1px solid var(--border);
+            backdrop-filter: blur(6px);
+            background: var(--tick) left top / 12px 1.5px no-repeat, var(--tick) left top / 1.5px 12px no-repeat,
+                        var(--tick) right bottom / 12px 1.5px no-repeat, var(--tick) right bottom / 1.5px 12px no-repeat, var(--panel); }
+  h2 { display: flex; align-items: baseline; gap: .75rem; font-size: clamp(1.6rem, 3.4vw, 2.2rem); font-weight: 700; letter-spacing: -.035em; margin: 0 0 1.25rem; }
+  h2 .sec { color: var(--accent); font: 400 .9rem "Geist Mono", monospace; letter-spacing: 0; }
+  h2::after { content: ""; flex: 1; height: 1px; align-self: center; background: linear-gradient(90deg, var(--border), transparent); }
+
+  /* ---------- hero ---------- */
+  .hero { min-height: calc(100svh - 56px); display: flex; flex-direction: column; justify-content: center; padding: 3rem 0 5rem; position: relative; }
+  .eyebrow { display: flex; align-items: center; gap: .55rem; font-size: .8rem; color: var(--muted); letter-spacing: .04em; margin: 0 0 1.4rem; }
+  .eyebrow #role { color: var(--fg); }
+  .eyebrow .sep { opacity: .5; }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent); animation: pulse 2.2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 10px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .caret { width: .55em; height: 1.1em; background: var(--accent); margin-left: -.35rem; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hero h1 { font-size: clamp(3rem, 10vw, 7rem); line-height: .95; margin: 0 0 1.5rem; font-weight: 750; letter-spacing: -.055em; }
+  .hero h1 .hi { display: block; font: italic 400 .42em "Instrument Serif", serif; letter-spacing: 0; color: var(--muted); margin-bottom: .1em; }
+  .hero h1 .word { display: inline-block; white-space: nowrap; }
+  .hero h1 .ch { display: inline-block; }
+  .hero h1 .dot { color: var(--accent); }
+  /* the name's gradient runs across all its letters: each letter offsets the shared gradient by its own x (--x) */
+  @property --shift { syntax: '<length>'; inherits: true; initial-value: 0px; }
+  .name { --w: 6em; animation: shift 7s linear infinite; }
+  .name .ch { background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent)) calc(var(--shift) - var(--x, 0px)) 0 / calc(var(--w) * 2) 100% repeat-x;
+              -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: .06em; }
+  @keyframes shift { to { --shift: calc(var(--w) * 2); } }
+  .lede { font-size: clamp(1.05rem, 1.8vw, 1.25rem); color: var(--muted); max-width: 38rem; margin: 0 0 2rem; }
+  .hero .lede, .hero .eyebrow, .hero .hi { text-shadow: 0 0 4px var(--bg), 0 0 18px var(--bg), 0 0 36px var(--bg); }
+  .ctas { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .hero .eq { color: var(--muted); font-size: .85rem; margin: 1.5rem 0 0; min-height: 1.4em; }
+  .cue { position: absolute; left: 50%; bottom: 1.5rem; width: 22px; height: 36px; border: 1.5px solid var(--muted); border-radius: 12px; translate: -50% 0; opacity: .7; }
+  .cue span { position: absolute; left: 50%; top: 7px; width: 3px; height: 7px; border-radius: 2px; background: var(--accent); translate: -50% 0; animation: cue 1.8s cubic-bezier(.6,0,.4,1) infinite; }
+  @keyframes cue { 0% { opacity: 0; transform: translateY(-3px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
+
+  /* ---------- buttons: magnetic, with a light sweep on hover ---------- */
+  .btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1.2rem; border: 1px solid var(--accent);
+         color: var(--accent); text-decoration: none; font-weight: 600; font-size: .95rem; letter-spacing: -.01em; margin: 0 .5rem .5rem 0;
+         transform: translate(var(--tx, 0px), var(--ty, 0px)); transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .3s, background .3s, color .3s; }
+  .ctas .btn { margin: 0; }
+  .btn::after { content: ""; position: absolute; inset: 0; translate: -110% 0; pointer-events: none;
+                background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--fg) 22%, transparent) 50%, transparent 80%); }
+  .btn:hover::after { translate: 110% 0; transition: translate .7s cubic-bezier(.2,.8,.2,1); }
+  .btn:hover { box-shadow: 0 0 22px -6px var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--bg); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ---------- project cards: 3D tilt, pointer spotlight, glowing edge ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.1rem; perspective: 1000px; }
+  .card { --mx: 50%; --my: 0%; position: relative; border: 1px solid var(--border); padding: 1.4rem; display: flex; flex-direction: column;
+          background: radial-gradient(420px circle at var(--mx) var(--my), color-mix(in srgb, var(--accent) 11%, transparent), transparent 45%), var(--bg);
+          transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+  .card::before { content: ""; position: absolute; inset: -1px; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .4s;
+                  background: radial-gradient(260px circle at var(--mx) var(--my), var(--accent), transparent 70%);
+                  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+                  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  .card:hover::before { opacity: 1; }
+  .card:hover { transition-duration: .15s; }
+  .card h3 { margin: .2rem 0 .35rem; display: flex; align-items: center; gap: .55rem; font-size: 1.25rem; letter-spacing: -.025em; }
+  .card h3 svg { height: 1.1em; width: auto; flex: none; }
+  .card p { color: var(--muted); flex: 1; }
+  .tags { display: flex; flex-wrap: wrap; gap: .35rem; margin: .5rem 0 1.1rem; }
+  .tags span { font: .72rem "Geist Mono", monospace; padding: .15rem .55rem; border: 1px solid var(--border); color: var(--muted); }
+  .status { font: .72rem "Geist Mono", monospace; color: var(--accent2); letter-spacing: .04em; }
+
+  /* ---------- timeline: the line fills and dots light up as you read ---------- */
+  .timeline { --p: 0; position: relative; list-style: none; padding: 0; margin: 0 0 1.75rem; border-left: 1px solid var(--border); }
+  .timeline::before { content: ""; position: absolute; left: -1.5px; top: 0; width: 2px; height: 100%; transform-origin: top; transform: scaleY(var(--p));
+                      background: linear-gradient(var(--accent), var(--accent2)); box-shadow: 0 0 12px var(--accent); }
+  .timeline > li { padding: 0 0 1.4rem 1.4rem; position: relative; }
+  .timeline > li::before { content: ""; position: absolute; left: -6.5px; top: .45rem; width: 12px; height: 12px; border-radius: 50%;
+                           border: 1.5px solid var(--border); background: var(--bg); transition: background .4s, border-color .4s, box-shadow .4s; }
+  .timeline > li.lit::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent); }
+  .timeline .when { font: .78rem "Geist Mono", monospace; color: var(--muted); }
+  .timeline strong { letter-spacing: -.015em; }
+  .timeline ul { margin: .4rem 0 0; padding-left: 1.1rem; color: var(--muted); }
+  .skills { display: grid; grid-template-columns: max-content 1fr; gap: .45rem 1.25rem; margin: 1.75rem 0 0; }
+  .skills dt { font: .8rem/1.9 "Geist Mono", monospace; color: var(--accent); }
+  .skills dd { margin: 0; }
+
+  footer { text-align: center; color: var(--muted); padding: 2rem 16px 3rem; font-size: .8rem; }
+
+  /* ---------- motion (only when JS is on; everything is visible without it) ---------- */
+  .js nav { animation: drop .9s .1s cubic-bezier(.2,.8,.2,1) backwards; }
+  .js #fractal { animation: bloom 2.4s cubic-bezier(.2,.7,.2,1) backwards; }
+  .js .eyebrow { animation: rise .8s .25s cubic-bezier(.2,.8,.2,1) backwards; }
+  .js .hero h1 .ch { animation: char .9s cubic-bezier(.2,.8,.2,1) backwards; animation-delay: calc(.35s + var(--ci) * 32ms); }
+  .js .lede { animation: rise .9s 1s cubic-bezier(.2,.8,.2,1) backwards; }
+  .js .ctas .btn { animation: rise .8s cubic-bezier(.2,.8,.2,1) backwards; }
+  .js .ctas .btn:nth-child(1) { animation-delay: 1.15s; } .js .ctas .btn:nth-child(2) { animation-delay: 1.25s; } .js .ctas .btn:nth-child(3) { animation-delay: 1.35s; }
+  .js .hero .eq { animation: rise .8s 1.5s cubic-bezier(.2,.8,.2,1) backwards; }
+  .js .cue { animation: fade 1s 2s backwards; }
+  @keyframes drop  { from { translate: 0 -100%; opacity: 0; } }
+  @keyframes bloom { from { opacity: 0; filter: blur(30px) brightness(1.8); transform: scale(1.15); } }
+  @keyframes rise  { from { opacity: 0; translate: 0 18px; filter: blur(6px); } }
+  @keyframes char  { from { opacity: 0; transform: translateY(.45em) rotate(8deg) scale(.9); filter: blur(12px); } }
+  @keyframes fade  { from { opacity: 0; } }
+  /* scroll reveal: fades in on enter and back out on leave; uses `translate` so it composes with the card tilt */
+  .js [data-reveal] { opacity: 0; translate: 0 28px; filter: blur(6px);
+                      transition: opacity .8s cubic-bezier(.2,.8,.2,1), translate .9s cubic-bezier(.2,.8,.2,1), filter .8s, transform .5s cubic-bezier(.2,.8,.2,1); }
+  .js [data-reveal].in { opacity: 1; translate: 0 0; filter: none; transition-delay: calc(var(--i, 0) * 70ms); }
+
+  @media (max-width: 600px) { section { padding: 1.4rem; margin: 3.5rem 0; } .links { gap: .8rem; } .eyebrow .sep, .eyebrow .open { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js [data-reveal] { opacity: 1; translate: none; filter: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="fractal" aria-hidden="true"></canvas>
+
+<nav>
+  <div class="links">
+    <a class="brand" href="#top" aria-label="Back to top">AL</a>
+    <a href="#about">About</a><a href="#projects">Projects</a><a href="#resume">Resume</a>
+  </div>
+  <div class="controls">
+    <select id="theme" hidden data-label="Theme" data-grid>
+      <option value="dark" data-swatch="#0b0d12 #5eead4 #818cf8" data-sub="teal on ink">Dark</option>
+      <option value="aurora" data-swatch="#06121a #6ee7b7 #c084fc" data-sub="mint on deep sea">Aurora</option>
+      <option value="synthwave" data-swatch="#13072e #ff4ecd #22d3ee" data-sub="neon on night">Synthwave</option>
+      <option value="spectrum" data-swatch="#0a0a12 #ff6ad5 #6ad5ff" data-sub="hue drifts live">Spectrum</option>
+      <option value="bold" data-swatch="#1b0838 #ffb703 #fb5607" data-sub="amber on violet">Bold</option>
+      <option value="noir" data-swatch="#0a0a0a #ff3b3b #f4f4f4" data-sub="red on black">Noir</option>
+      <option value="minimal" data-swatch="#fbfaf7 #2b59c3 #c33b2b" data-sub="ink on paper">Minimal</option>
+      <option value="glacier" data-swatch="#eef4fa #0a6fd6 #00a896" data-sub="cobalt on ice">Glacier</option>
+    </select>
+    <select id="kind" hidden data-label="Fractal" data-grid></select>
+  </div>
+</nav>
+
+<main>
+  <header class="hero" id="top">
+    <p class="eyebrow mono"><span class="pulse" aria-hidden="true"></span><span id="role">frontend engineer</span><span class="caret" aria-hidden="true"></span><span class="sep">/</span><span class="open">open to new roles</span></p>
+    <h1><span class="hi">Hi, I'm</span> <span class="name">Ali Lahrime</span><span class="dot">.</span></h1>
+    <p class="lede">Frontend-focused full-stack engineer. Six years of TypeScript across React, Angular and Node.js, with a degree in applied mathematics behind it.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#projects">See my work</a>
+      <a class="btn" href="https://github.com/alahrime">GitHub</a>
+      <a class="btn" href="mailto:alahrime@gmail.com">Email</a>
+    </div>
+    <p class="eq mono" id="eq">z<sub>n+1</sub> = z<sub>n</sub>² + c</p>
+    <a class="cue" href="#about" aria-label="Scroll to About"><span></span></a>
+  </header>
+
+  <section id="about">
+    <h2 data-reveal><span class="sec">§1</span><span class="ttl">About</span></h2>
+    <p data-reveal>I'm a frontend-focused engineer who builds reliable, polished React and TypeScript apps, from reusable design-system components to the APIs behind them. I care about the details people feel: performance, accessibility and interaction quality. I back them up with automated tests and careful code review.</p>
+    <p data-reveal>I've shipped features on the NCI Genomic Data Commons, a data-heavy cancer research portal with 70,000+ monthly users, built a Section 508 compliant React app from scratch for the VA, and designed a data table component reused across several portals. Today I keep learning and building with new AI technologies, picking up the tools and skills that help me ship better work, faster.</p>
+    <dl class="skills" data-reveal>
+      <dt>Languages</dt><dd>TypeScript, JavaScript, HTML, CSS, Python, SQL</dd>
+      <dt>Frontend</dt><dd>Tailwind CSS, React, Angular, Vite, RTK Query, Three.js</dd>
+      <dt>Backend</dt><dd>Node.js, Express, REST API design, Supabase, PostgreSQL</dd>
+      <dt>Cloud &amp; DevOps</dt><dd>Docker, Kubernetes, Cloudflare Workers, GitHub Actions, Jenkins, Git</dd>
+      <dt>AI tooling</dt><dd>Claude Code, Codex, Cursor, Ollama (local LLMs)</dd>
+    </dl>
+  </section>
+
+  <section id="projects">
+    <h2 data-reveal><span class="sec">§2</span><span class="ttl">Projects</span></h2>
+    <div class="grid">
+      <article class="card" data-reveal>
+        <span class="status">◐ in progress</span>
+        <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12a10 10 0 0 1 20 0z" fill="#e3350d"/><path d="M2 12a10 10 0 0 0 20 0z" fill="#f4f4f4"/><circle cx="12" cy="12" r="10" fill="none" stroke="#1a1a1a" stroke-width="1.6"/><path d="M2 12h20" stroke="#1a1a1a" stroke-width="1.6"/><circle cx="12" cy="12" r="3.2" fill="#f4f4f4" stroke="#1a1a1a" stroke-width="1.6"/></svg>Paragon IV</h3>
+        <p>Competitive Pokémon IV ranking app with matchmaking, PvP, tournaments, friends and chat.</p>
+        <div class="tags"><span>React</span><span>Supabase</span><span>Realtime</span></div>
+        <div><a class="btn" href="https://paragon2.alahrime.workers.dev/" target="_blank" rel="noopener">Live demo</a><a class="btn" href="https://github.com/alahrime/pokemon-fullstack-app" target="_blank" rel="noopener">Code</a></div>
+      </article>
+      <article class="card" data-reveal>
+        <span class="status">◐ in progress</span>
+        <h3><svg viewBox="0 0 32 14" aria-hidden="true"><path d="M1.5 10.5C1.5 9 2.5 8.2 4 7.8L10 6.6C12 4.6 15 3.6 19 3.6c3 0 5.5 1 7.5 2.8l3 .8c1.1.3 1.5 1.2 1.5 2.2v1.1z" fill="#d40000"/><path d="M11.6 6.6c1.7-1.4 4-2 7-2h.9l.5 2z M21 4.8c1.8.2 3.2.8 4.3 1.8h-3.8z" fill="#1a1a1a" opacity=".75"/><circle cx="8" cy="10.6" r="2.6" fill="#1a1a1a"/><circle cx="24.5" cy="10.6" r="2.6" fill="#1a1a1a"/><circle cx="8" cy="10.6" r="1" fill="#c8c8c8"/><circle cx="24.5" cy="10.6" r="1" fill="#c8c8c8"/></svg>Auto Repair Scanner</h3>
+        <p>Offline tool that reads photos of handwritten repair tickets with a local vision model and fills the shop's billing app, with staff reviewing every value first.</p>
+        <div class="tags"><span>Python</span><span>Ollama</span><span>Qwen2.5-VL</span><span>Tkinter</span></div>
+        <div><a class="btn" href="https://github.com/alahrime/ticket-autofill" target="_blank" rel="noopener">Code</a></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="resume">
+    <h2 data-reveal><span class="sec">§3</span><span class="ttl">Resume</span></h2>
+    <ul class="timeline">
+      <li data-reveal><div class="when">Dec 2024 – present</div><strong>Full-Stack Software Engineer · Japanese Auto Services</strong>
+        <ul>
+          <li>Own the shop's billing platform end to end, setting priorities and the roadmap with the owner and front-desk staff</li>
+          <li>Defined how customers, vehicles, jobs and invoices are tracked, shaped around how staff actually work</li>
+          <li>Sped up billing by automating diagnostics, invoicing and pickup notifications, and building a tool that turns photos of handwritten job tickets into invoices</li>
+          <li>Automated the shop's inspection and emissions billing reports, replacing manual report preparation</li>
+        </ul></li>
+      <li data-reveal><div class="when">Oct 2021 – Sep 2024</div><strong>Frontend Software Engineer · Center for Translational Data Science, UChicago</strong>
+        <ul>
+          <li>Shipped features on the NCI Genomic Data Commons (70,000+ monthly users, 3+ PB of data)</li>
+          <li>Built a Section 508 compliant React/TypeScript app from scratch for the VA's genomics program</li>
+          <li>Designed a reusable data table component adopted across several portals; migrated data fetching to RTK Query</li>
+        </ul></li>
+      <li data-reveal><div class="when">Oct 2019 – Sep 2021</div><strong>Software Engineer I · Pyramid Systems, Inc.</strong>
+        <ul>
+          <li>Frontend on federal contracts: an Angular app for the SEC and a React app for HUD</li>
+          <li>Reworked search used by 50,000+ users; earned the Key for Performance Award</li>
+        </ul></li>
+      <li data-reveal><div class="when">Jan 2019 – May 2019</div><strong>Full-Stack Apprentice · Thinkful Engineering Immersion</strong></li>
+      <li data-reveal><div class="when">Jun 2018 – Nov 2018</div><strong>Software Developer · FDM Group</strong></li>
+      <li data-reveal><div class="when">2013 – 2017</div><strong>B.S. Applied Mathematics · College of William &amp; Mary</strong></li>
+    </ul>
+    <a class="btn primary" href="resume.pdf" download="Ali_Lahrime_Resume.pdf" data-reveal>Download PDF</a>
+  </section>
+</main>
+
+<footer class="mono">© <span id="yr"></span> Ali Lahrime · hand-built with WebGL and no frameworks · z ↦ z² + c</footer>
+
+<script src="fractals.js?v=03ffb7c"></script>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const root = document.documentElement;
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// --- settings (per-viewer convenience; storage may be unavailable) ---
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const themeSel = document.getElementById('theme'), kindSel = document.getElementById('kind');
+for (const f of FRACTALS) {
+  const parent = f.group ? kindSel.querySelector(`optgroup[label="${f.group}"]`) ||
+                           kindSel.appendChild(Object.assign(document.createElement('optgroup'), { label: f.group })) : kindSel;
+  const o = new Option(f.name, f.id);
+  Object.assign(o.dataset, { sub: f.sub, eq: f.eq, icon: f.icon, tag: GROUP_TAG[f.group] || '' });
+  parent.append(o);
+}
+themeSel.value = store.get('theme') || 'spectrum';
+if (!themeSel.value) themeSel.value = 'spectrum';  // stored theme no longer exists
+kindSel.value = store.get('kind') || 'julia';
+if (!kindSel.value) kindSel.value = 'julia';
+const eq = document.getElementById('eq');
+const showEq = () => { eq.innerHTML = kindSel.selectedOptions[0].dataset.eq; };
+showEq();
+
+// --- custom dropdowns: mirror each hidden <select>, which stays the source of truth ---
+const CHEV = '<svg class="dd-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>';
+for (const sel of document.querySelectorAll('.controls select')) {
+  const dd = document.createElement('div'), id = sel.id + '-menu';
+  dd.className = 'dd';
+  dd.innerHTML = `<button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}">
+      <span class="dd-cap">${sel.dataset.label}</span><span class="dd-val"></span>${CHEV}</button>
+    <ul class="dd-menu" role="listbox" id="${id}" aria-label="${sel.dataset.label}" tabindex="-1"></ul>`;
+  const btn = dd.querySelector('button'), menu = dd.querySelector('ul'), val = dd.querySelector('.dd-val');
+  const grid = 'grid' in sel.dataset, n = Math.ceil(Math.sqrt(sel.options.length));
+  if (grid) { menu.classList.add('grid'); menu.style.setProperty('--n', n); }
+  for (const o of sel.options) {
+    if (!grid && o.parentNode.label && o === o.parentNode.firstElementChild)
+      menu.append(Object.assign(document.createElement('li'), { className: 'dd-group', role: 'presentation', textContent: o.parentNode.label }));
+    const li = document.createElement('li'), d = o.dataset;
+    li.className = 'dd-opt'; li.role = 'option'; li.dataset.value = o.value; li.tabIndex = -1;
+    const icon = d.swatch ? `<span class="swatch">${d.swatch.split(' ').map(c => `<i style="background:${c}"></i>`).join('')}</span>`
+                          : `<span class="glyph" aria-hidden="true">${d.icon}</span>`;
+    li.innerHTML = `${grid && d.tag ? `<span class="tag">${d.tag}</span>` : ''}${icon}<span><b>${o.text}</b><small>${d.sub}</small></span><span class="check">✓</span>`;
+    menu.append(li);
+  }
+  for (let i = sel.options.length; grid && i < n * n; i++)   // pad the square with an idle HUD cell
+    menu.append(Object.assign(document.createElement('li'), { className: 'dd-idle', role: 'presentation',
+      innerHTML: `<span>${sel.options.length}/${n * n}</span><span>n = ${n}</span>` }));
+  [...menu.children].forEach((li, i) => li.style.setProperty('--i', i));                 // stagger order
+  const opts = [...menu.querySelectorAll('.dd-opt')];
+  const sync = () => { val.textContent = sel.selectedOptions[0].text;
+                       opts.forEach(li => li.setAttribute('aria-selected', li.dataset.value === sel.value)); };
+  const focusOpt = li => { opts.forEach(o => o.classList.toggle('active', o === li)); li.focus(); };
+  const open = () => { dd.classList.remove('closing'); dd.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+                       focusOpt(opts.find(li => li.dataset.value === sel.value)); };
+  const close = (refocus) => {
+    if (!dd.classList.contains('open')) return;
+    dd.classList.replace('open', 'closing'); btn.setAttribute('aria-expanded', 'false');
+    if (getComputedStyle(menu).animationName === 'none') dd.classList.remove('closing');  // reduced motion
+    if (refocus) btn.focus();
+  };
+  menu.addEventListener('animationend', e => { if (e.target === menu && e.animationName === 'dd-out') dd.classList.remove('closing'); });
+  const pick = li => { sel.value = li.dataset.value; sel.dispatchEvent(new Event('change')); sync(); close(true); };
+  btn.onclick = () => dd.classList.contains('open') ? close() : open();
+  btn.onkeydown = e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(); } };
+  menu.onclick = e => { const li = e.target.closest('.dd-opt'); if (li) pick(li); };
+  menu.onmousemove = e => { const li = e.target.closest('.dd-opt'); if (li && li !== document.activeElement) focusOpt(li); };
+  menu.onkeydown = e => {
+    const i = opts.indexOf(document.activeElement);
+    const row = grid ? n : 1;  // in the grid, up/down move a whole row
+    const go = { ArrowDown: i + row, ArrowUp: i - row, ArrowRight: grid ? i + 1 : undefined, ArrowLeft: grid ? i - 1 : undefined,
+                 Home: 0, End: opts.length - 1 }[e.key];
+    if (go !== undefined) { e.preventDefault(); focusOpt(opts[grid ? Math.min(Math.max(go, 0), opts.length - 1) : (go + opts.length) % opts.length]); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(opts[i]); }
+    else if (e.key === 'Escape') close(true);
+    else if (e.key === 'Tab') close();
+  };
+  document.addEventListener('pointerdown', e => { if (!dd.contains(e.target)) close(); });
+  sel.after(dd); sync();
+}
+
+// --- colors: themes are CSS; Spectrum rewrites its accents live ---
+let colors;
+function hex(c) { c = c.trim().replace('#', ''); return [0, 2, 4].map(i => parseInt(c.slice(i, i + 2), 16) / 255); }
+function readColors() {
+  const s = getComputedStyle(root);
+  colors = ['--bg', '--accent', '--accent2'].map(v => hex(s.getPropertyValue(v)));
+}
+function hsl(h, s, l) {   // -> [r, g, b] in 0..1
+  const a = s * Math.min(l, 1 - l), k = n => (n + h / 30) % 12;
+  return [0, 8, 4].map(n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)));
+}
+const toHex = c => '#' + c.map(v => Math.round(v * 255).toString(16).padStart(2, '0')).join('');
+let specLast = 0;
+function spectrum(force) {
+  if (themeSel.value !== 'spectrum') return;
+  const now = performance.now();
+  if (!force && now - specLast < 80) return;   // ~12 updates/s is smooth for a slow drift and cheap on style recalc
+  specLast = now;
+  const h = (now / 100) % 360;                 // one full turn of the wheel every 36 s
+  root.style.setProperty('--accent', toHex(hsl(h, .9, .66)));
+  root.style.setProperty('--accent2', toHex(hsl((h + 140) % 360, .9, .64)));
+  readColors();
+}
+
+// --- fractal background (engine and registry live in fractals.js) ---
+const canvas = document.getElementById('fractal'), render = Fractals(canvas);
+if (!render) canvas.remove(); // no WebGL: plain background
+let shown = kindSel.value;    // what is on screen; lags kindSel during the dissolve
+const draw = t => render && render(shown, t, colors);
+let t = 0.6, last = performance.now();
+function loop(now) {
+  t += Math.min(now - last, 50) * 0.00025; last = now; // time-based, so speed is the same at 60 or 120 Hz
+  spectrum(); draw(t); requestAnimationFrame(loop);
+}
+
+function applyTheme() {
+  root.dataset.theme = themeSel.value;
+  if (themeSel.value !== 'spectrum') { root.style.removeProperty('--accent'); root.style.removeProperty('--accent2'); }
+  readColors(); spectrum(true); draw(t);
+}
+let lastPt = [innerWidth - 120, 30];
+addEventListener('pointerdown', e => { lastPt = [e.clientX, e.clientY]; }, true);
+themeSel.onchange = () => {
+  store.set('theme', themeSel.value);
+  if (still || !document.startViewTransition) return applyTheme();
+  const [x, y] = lastPt;
+  root.style.setProperty('--vx', x + 'px'); root.style.setProperty('--vy', y + 'px');
+  root.style.setProperty('--vr', Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 'px');
+  root.classList.add('vt-theme');
+  document.startViewTransition(applyTheme).finished.finally(() => root.classList.remove('vt-theme'));
+};
+
+// fractal switch: the old one dissolves (blur, swell, fade), then the new one condenses into focus
+let fxTimer;
+kindSel.onchange = () => {
+  store.set('kind', kindSel.value);
+  if (still || !render) { shown = kindSel.value; showEq(); return draw(t); }
+  clearTimeout(fxTimer);
+  canvas.classList.remove('fx-in', 'fx-pre'); canvas.classList.add('fx-out');
+  fxTimer = setTimeout(() => {
+    shown = kindSel.value; showEq();
+    eq.animate([{ opacity: 0, translate: '0 8px', filter: 'blur(4px)' }, { opacity: 1, translate: '0 0', filter: 'blur(0)' }],
+               { duration: 600, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    canvas.classList.replace('fx-out', 'fx-pre');
+    draw(t); canvas.offsetWidth;                         // commit the start state before transitioning in
+    canvas.classList.replace('fx-pre', 'fx-in');
+    fxTimer = setTimeout(() => canvas.classList.remove('fx-in'), 1000);
+  }, 360);
+};
+
+applyTheme();
+addEventListener('resize', () => { if (still) draw(t); });
+if (render && /[?&]debug\b/.test(location.search)) {   // ?debug: show what the fractal engine is rendering
+  const hud = Object.assign(document.createElement('div'), { className: 'mono' });
+  hud.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:50;padding:4px 8px;font-size:11px;background:#000c;color:#0f0;pointer-events:none';
+  document.body.append(hud);
+  setInterval(() => { const s = render.stats || {}; hud.textContent = `${s.id}  level ${s.level}  scale ${s.scale}x  samples ${s.samples}` + (s.points ? `  points ${s.points / 1e6}M` : '') + `  ${s.fps || '…'} fps`; }, 500);
+}
+if (still) draw(t); else requestAnimationFrame(loop);
+</script>
+<script src="motion.js?v=03ffb7c"></script>
+</body>
+</html>
